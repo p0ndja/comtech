@@ -1,4 +1,4 @@
-from machine import Pin, SoftI2C
+from machine import Pin, SoftI2C, ADC
 import utime as time
 from lcd_api import LcdApi
 from i2c_lcd import I2cLcd
@@ -232,9 +232,22 @@ def init_custom_char():
         0B00100,
         0B01010
     ]))
-    
+
+mic_pin = Pin(26, Pin.IN)
+adc = ADC(mic_pin)
+adc.width(ADC.WIDTH_12BIT)  # Set ADC resolution to 12 bits
+def get_mic_data():
+  """
+  Reads the raw analog data from the microphone sensor.
+
+  Returns:
+      int: The raw ADC value from the microphone sensor.
+  """
+  return adc.read()
+
 if __name__ == "__main__":
     initialize()
+    mic_commulative = 0
     while True:
         user_answer = ""
         current_char = None
@@ -339,6 +352,14 @@ if __name__ == "__main__":
                                     write_to_screen()
                     else:
                         current_char = ""
+                        if (len(user_answer) > 0):
+                            mic_value = get_mic_data()
+                            if mic_value != 4095:
+                                # print(mic_value)
+                                mic_commulative += mic_value
+                        if (mic_commulative >= 1000):
+                            mic_commulative = 0
+                            break
                     # time.sleep_ms(20-len(current_char))
                 # Exit loop when press "A"
                 if (user_answer != None and len(user_answer) != 0 and int(user_answer) == ans):

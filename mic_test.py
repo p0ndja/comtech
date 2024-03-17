@@ -1,5 +1,6 @@
 import micropython
 from machine import Pin, ADC
+import utime as time
 
 # Define microphone pin
 mic_pin = Pin(26, Pin.IN)
@@ -18,12 +19,18 @@ def get_mic_data():
   return adc.read()
 
 # Example usage
+commulative = 0
 while True:
   # Read microphone data
   mic_value = get_mic_data()
-
   # Print the raw ADC value (0 - 4095)
-  print(mic_value)
+  if mic_value != 4095:
+    # print(mic_value)
+    commulative += mic_value
+  if (commulative >= 1000):
+    print("Next")
+    commulative = 0
+  time.sleep_ms(10)
 
   # You can process the microphone data here,
   # for example, convert it to voltage or perform audio analysis.
