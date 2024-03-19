@@ -25,10 +25,10 @@ while True:
   mic_value = get_mic_data()
   # Print the raw ADC value (0 - 4095)
   if mic_value != 4095:
-    # print(mic_value)
+    print(mic_value)
     commulative += mic_value
   if (commulative >= 1000):
-    print("Next")
+    # print("Next")
     commulative = 0
   time.sleep_ms(10)
 
