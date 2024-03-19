@@ -39,7 +39,7 @@ def gen_equation():
             return gen_equation()
         return eqa
     else:
-        eqa = [random.randint(1,99), ["+","+","-","-","*","/"][random.randint(0,5)], random.randint(1,99)]
+        eqa = [random.randint(1,99), ["+","-","*","/"][random.randint(0,3)], random.randint(1,99)]
         if eqa[0] < eqa[2]:
                 eqa = [eqa[2],eqa[1],eqa[0]]
         if not check_hard_lv(eqa, 3):
