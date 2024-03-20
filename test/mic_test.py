@@ -25,11 +25,18 @@ while True:
   mic_value = get_mic_data()
   # Print the raw ADC value (0 - 4095)
   if mic_value != 4095:
-    print(mic_value)
-    commulative += mic_value
-  if (commulative >= 1000):
-    # print("Next")
+    # print(mic_value)
+    commulative += 1
+    print("Mic Trigger")
+  else:
+    if commulative > 0:
+      commulative = 0
+      print("Mic Reset")
+      
+  if (commulative >= 3):
+    print("Next")
     commulative = 0
+  
   time.sleep_ms(10)
 
   # You can process the microphone data here,

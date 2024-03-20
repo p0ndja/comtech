@@ -25,21 +25,21 @@ def gen_equation():
     # random.seed(RANDOM_SEED + RANDOM_SEED_FACTOR)
     RANDOM_SEED_FACTOR += 1
     if LEVEL_FACTOR == 1:
-        eqa = [random.randint(1,20), ["+","+","+","+","+","-","-","-","-","-","*","/"][random.randint(0,11)], random.randint(1,10)]
+        eqa = [random.randint(1,20), ["+","+","+","+","+","-","-","-","-","-","x","/"][random.randint(0,11)], random.randint(1,10)]
         if eqa[0] < eqa[2]:
                 eqa = [eqa[2],eqa[1],eqa[0]]
         if not check_hard_lv(eqa, 1):
             return gen_equation()
         return eqa
     elif LEVEL_FACTOR == 2:
-        eqa = [random.randint(1,50), ["+","+","+","-","-","-","*","/"][random.randint(0,7)], random.randint(1,50)]
+        eqa = [random.randint(1,50), ["+","+","+","-","-","-","x","/"][random.randint(0,7)], random.randint(1,50)]
         if eqa[0] < eqa[2]:
                 eqa = [eqa[2],eqa[1],eqa[0]]
         if not check_hard_lv(eqa, 2):
             return gen_equation()
         return eqa
     else:
-        eqa = [random.randint(1,99), ["+","-","*","/"][random.randint(0,3)], random.randint(1,99)]
+        eqa = [random.randint(1,99), ["+","-","x","/"][random.randint(0,3)], random.randint(1,99)]
         if eqa[0] < eqa[2]:
                 eqa = [eqa[2],eqa[1],eqa[0]]
         if not check_hard_lv(eqa, 3):
@@ -56,7 +56,7 @@ def check_hard_lv(eqa,lv):
         sum = x+y
     elif o == "-":
         sum = x-y
-    elif o == "*":
+    elif o == "x":
         sum = x*y
     elif o == "/":
         sum = x/y
@@ -73,7 +73,7 @@ def answer(eqa):
         return x+y
     elif o == "-":
         return x-y
-    elif o == "*":
+    elif o == "x":
         return x*y
     elif o == "/":
         return x/y
@@ -247,7 +247,14 @@ def get_mic_data():
 
 if __name__ == "__main__":
     initialize()
-    mic_commulative = 0
+    current_str = "   Quick Math   EN813705 ComTech"
+    write_to_screen()
+    time.sleep_ms(1500)
+    lcd.clear()
+    current_str = "1661 Palapon S. 6043 Phattharani"
+    write_to_screen()
+    time.sleep_ms(1500)
+    lcd.clear()
     while True:
         user_answer = ""
         current_char = None
@@ -263,6 +270,14 @@ if __name__ == "__main__":
             if len(keys) == 1 and keys[0] == "A":
                 lcd.clear()
                 break
+            if len(keys) == 1 and keys[0] == "*":
+                lcd.clear()
+                current_str = "1661 Palapon S. 6043 Phattharani"
+                write_to_screen()
+                time.sleep_ms(2000)
+                lcd.clear()
+                current_str = "   Quick Math   Press A to start"
+                write_to_screen()
         current_str = "Difficulty (1-3)"
         write_to_screen()
         while True:
@@ -299,13 +314,20 @@ if __name__ == "__main__":
         for i in range(0,4):
             current_str += "...."
             write_to_screen()
-            time.sleep_ms(500)
+            time.sleep_ms(400)
         lcd.clear()
+        mic_commulative = 0
         while True:
             equation = gen_equation()
             ans = answer(equation)
             print(f"LV: {LEVEL_FACTOR}, SEED: {RANDOM_SEED}, {equation[0]} {equation[1]} {equation[2]} = {ans}")
-            eq = f"{equation[0]}{equation[1]}{equation[2]}="
+            heartmsg = ""
+            for i in range(0,heart):
+                heartmsg += chr(0)
+            for i in range(0,3-heart):
+                heartmsg += chr(1)
+            eq = f"A:Ans D:Del  {heartmsg}{equation[0]}{equation[1]}{equation[2]}="
+            # eq = f"{equation[0]}{equation[1]}{equation[2]}="
             current_str = eq
             write_to_screen()
             try:
@@ -351,15 +373,22 @@ if __name__ == "__main__":
                                     current_str += current_char
                                     write_to_screen()
                     else:
-                        current_char = ""
-                        if (len(user_answer) > 0):
+                        if (len(user_answer) > 0 and current_char == ""):
                             mic_value = get_mic_data()
                             if mic_value != 4095:
                                 # print(mic_value)
-                                mic_commulative += mic_value
-                        if (mic_commulative >= 1000):
-                            mic_commulative = 0
-                            break
+                                mic_commulative += 1
+                                print("Mic Trigger")
+                            else:
+                                if (mic_commulative > 0):
+                                    print("Mic Reset")
+                                    mic_commulative = 0
+                            if (mic_commulative >= 3):
+                                print("Mic Next")
+                                mic_commulative = 0
+                                current_char = ""
+                                break
+                        current_char = ""
                     # time.sleep_ms(20-len(current_char))
                 # Exit loop when press "A"
                 if (user_answer != None and len(user_answer) != 0 and int(user_answer) == ans):
